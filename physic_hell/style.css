@@ -1,0 +1,158 @@
+* {
+    margin: 0;
+    padding: 0;
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/*=============================
+     Colors 
+================================*/
+
+:root {
+    --head-color: #1D1F2A;
+    --background-color: #838AAA;
+    --cards-color: #303446;
+    --card-color: #424861;
+}
+
+/*=============================
+     Mobile Styles
+================================*/
+
+@media screen and (max-width: 768px) {
+
+    body {
+        background-color: #838AAA;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    a {
+        text-decoration: none;
+        color: #D5D7E2;
+    }
+
+    #head_container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        height: 11vh;
+        border-radius: 10px;
+
+        position: sticky;
+        top: 0px;
+
+        background-color: var(--head-color);
+
+        padding: 0px 20px;
+    }
+
+    #heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #logo {
+        width: 35px;
+        height: 35px;
+
+        border-radius: 60px;
+    }
+
+    #title {
+        font-size: 1.5rem;
+        color: #D5D7E2;
+        text-shadow: 1px 1px 7px var(--cards-color);
+    }
+
+    #menu_btn {
+        padding: 5px 10px;
+        font-size: 0.90rem;
+        color: #303446;
+        background-color: #D5D7E2;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+
+
+        box-shadow: 1px 1px 5px var(--card-color);
+    }
+
+    #menu {
+        display: none;
+    }
+
+    #menu.show {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        position: absolute;
+        top: 60px;
+        right: 20px;
+
+        background-color: var(--head-color);
+        padding: 10px;
+        border-radius: 10px;
+
+        box-shadow: 1px 1px 5px var(--card-color);
+    }
+
+    #logout {
+        color: red;
+    }
+
+    #container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        padding: 20px 10px;
+    }
+
+    .cards {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        border-radius: 20px;
+
+        width: 100%;
+        gap: 25px;
+        padding: 30px 0px;
+
+        background-color: var(--cards-color);
+
+    }
+
+    .card {
+        display: flex;
+        flex-direction: column;
+
+
+        width: 80%;
+        height: fit-content;
+        padding: 10px 15px;
+
+        border-radius: 10px;
+
+        background-color: var(--card-color);
+    }
+
+    .card p {
+        font-size: 0.9rem;
+        color: #D5D7E2;
+        text-shadow: 1px 1px 7px var(--cards-color);
+    }
+
+    .card img {
+        width: 40px;
+        height: 40px;
+
+        border-radius: 10px;
+    }
+}   
