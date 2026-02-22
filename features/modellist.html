@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D MODELS NEW</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="feature.css">
+</head>
+
+<body>
+
+    <div id="head_container">
+        <div id="heading">
+            <img src="../imgs/Ph.png" alt="logo" id="logo">
+            <h1 id="title">Physic Hell</h1>
+        </div>
+        <button id="menu_btn">☰</button>
+        <div id="menu">
+            <a href="#">home</a>
+            <a href="#">Dashboard</a>
+            <a href="#">profile</a>
+            <a href="#">settings</a>
+            <a href="#" id="logout">logout →</a>
+        </div>
+    </div>
+
+
+    <div id="f_container">
+        <div id="head">
+            <button id="back_btn_model">←</button>
+            <h2>3D MODELS</h2>
+
+        </div>
+        <div class="content">
+            <ul id="model_list" style="display: flex; flex-direction: column; gap: 10px ;">
+
+            </ul>
+
+            <!-- 🔥 Controls Area (UI will appear here) -->
+            <div id="controls_area"></div>
+
+            <!-- 🔥 Rendering Area (ONLY canvas goes here) -->
+            <div id="model_area"></div>
+
+            <div id="d_options">
+                <!-- <select id="model_select"></select> -->
+            </div>
+        </div>
+    </div>
+
+    <script></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="model.js"></script>
+    <script src="../script.js"></script>
+
+</body>
+
+</html>
