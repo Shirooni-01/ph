@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile 3D Equation Visualizer</title>
+    
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            background: #121212; 
+            color: white; 
+            overflow: hidden; 
+        }
+
+        .control-panel { 
+            background: #1e1e1e; 
+            padding: 15px; 
+            width: 100%; 
+            border-bottom: 1px solid #333;
+            text-align: center;
+            z-index: 100;
+        }
+
+        /* Container for the buttons to sit nicely */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+            width: 90%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        input { 
+            padding: 14px; 
+            width: 90%; 
+            max-width: 400px;
+            border-radius: 8px; 
+            border: 1px solid #444; 
+            font-size: 16px; 
+            background: #2a2a2a;
+            color: white;
+            display: block;
+            margin: 0 auto;
+        }
+
+        button { 
+            padding: 14px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            flex: 1; /* Makes buttons equal width */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-update { background: #00ce7c; color: white; }
+        .btn-update:active { background: #008f56; }
+
+        .btn-back { background: #444; color: white; }
+        .btn-back:active { background: #333; }
+
+        #graph-world { 
+            width: 100vw; 
+            height: 70vh; 
+        }
+
+        .hint { font-size: 0.75rem; color: #888; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="control-panel">
+    <input type="text" id="equation" value="sin(sqrt(x^2 + y^2))" placeholder="z = x^2 + y^2">
+    
+    <div class="button-group">
+        <button class="btn-back" onclick="window.history.back()">← Back</button>
+        <button class="btn-update" onclick="updateGraph()">Update Graph</button>
+    </div>
+
+    <div class="hint">
+        Use <strong>x</strong> and <strong>y</strong>. Pinch to zoom, drag to rotate.
+    </div>
+</div>
+
+<div id="graph-world"></div>
+
+<script src="graph.js"></script>
+
+</body>
+</html>

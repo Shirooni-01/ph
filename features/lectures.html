@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physic lecs</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="feature.css">
+</head>
+
+<body>
+    <div id="head_container">
+        <div id="heading">
+            <img src="../imgs/Ph.png" alt="logo" id="logo">
+            <h1 id="title">Physic Hell</h1>
+        </div>
+        <button id="menu_btn">☰</button>
+        <div id="menu">
+            <a href="#">home</a>
+            <a href="#">Dashboard</a>
+            <a href="#">profile</a>
+            <a href="#">settings</a>
+            <a href="#" id="logout">logout →</a>
+
+        </div>
+    </div>
+
+
+    <div id="f_container">
+        <div class="content">
+            <div id="head">
+                <button id="back_btn">←</button>
+                <h2>Physics Lectures</h2>
+            </div>
+            <div id="lec_area">
+                <div id="lecture_container" style="margin-top:10px;">
+                    <iframe id="lecture_frame" width="260" height="200" frameborder="0" allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+
+        function loadLecture(videoId) {
+
+            const iframe = document.getElementById("lecture_frame");
+
+            iframe.src =
+                "https://www.youtube.com/embed/" + videoId +
+                "?modestbranding=1&rel=0&controls=1&iv_load_policy=3";
+        }
+
+        // Example: load default lecture when page loads
+        loadLecture("bZkzH5x0SKU");
+
+    </script>
+</body>
+
+</html>

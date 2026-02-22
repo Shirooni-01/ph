@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Physics Lab - Launch Edition</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #050505;
+            color: white;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+
+        /* Responsive Menu Container */
+        #menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            /* Allow horizontal scrolling on mobile */
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            z-index: 100;
+            gap: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+            background: #111;
+            color: #00ff88;
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-weight: bold;
+            flex: 0 0 auto;
+            /* Prevent buttons from shrinking */
+        }
+
+        button:active {
+            background: #00ff88;
+            color: black;
+        }
+
+        /* Title Label Adjustments for Mobile */
+        .label {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            text-align: center;
+            pointer-events: none;
+            font-size: 0.9rem;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        /* Adjust the GUI position for mobile */
+        .lil-gui {
+            --width: 250px;
+            top: 70px !important;
+            /* Move it down so it doesn't overlap the menu */
+        }
+
+        @media (max-width: 600px) {
+            .lil-gui {
+                --width: 180px;
+            }
+
+            .label {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    
+    <div id="menu">
+        <button onclick="window.history.back()" style="background: #ff4444; color: white; border-color: #aa0000; border-radius: 10px;">⬅</button>
+        <button onclick="changeModel('Coordinate System')">Coordinate System</button>
+        <button onclick="changeModel('Vector Addition')">Vector Calculation</button>
+        <button onclick="changeModel('Projectile Motion')">Projectile Motion</button>
+        <button onclick="changeModel('SHM')">SHM</button>
+        <button onclick="changeModel('Magnetic Field')">Magnetic Field</button>
+        <button onclick="changeModel('Crystal Lattice')">Crystal Lattice</button>
+    </div>
+    <div class="label" id="current-title">3D Coordinate System</div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "lil-gui": "https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import GUI from 'lil-gui';
+
+        let scene, camera, renderer, controls, gui;
+        let activeModel = 'Coordinate System';
+        let objects = [];
+        let clock = new THREE.Clock();
+        let isMoving = false; // Toggle for launch logic
+
+        const params = {
+            ax: 2, ay: 3, az: 0, bx: 3, by: -1, bz: 2,
+            v0: 15, angle: 45,
+            amplitude: 2, frequency: 1,
+            bFieldZ: 2, charge: 1,
+            spacing: 1.5,
+            launch: function () {
+                if (activeModel === 'Projectile Motion' || activeModel === 'Magnetic Field') {
+                    resetSimulation();
+                    isMoving = true;
+                }
+            }
+        };
+
+        init();
+        animate();
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(10, 10, 15);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            scene.add(new THREE.GridHelper(20, 20, 0x333333, 0x111111));
+
+            window.addEventListener('resize', onWindowResize);
+            setupModel();
+        }
+
+        function resetSimulation() {
+            if (objects[0]) {
+                objects[0].position.set(0, 0, 0);
+                objects[0].userData.t = 0;
+                if (activeModel === 'Magnetic Field') {
+                    objects[0].userData.vel = new THREE.Vector3(5, 0, 0);
+                }
+            }
+            isMoving = false;
+        }
+
+        function setupModel() {
+            objects.forEach(obj => scene.remove(obj));
+            objects = [];
+            if (gui) gui.destroy();
+            gui = new GUI();
+            isMoving = false;
+            document.getElementById('current-title').innerText = activeModel;
+
+            if (activeModel === 'Coordinate System') {
+                // 1. Parameters for the Point
+                params.px = 2;
+                params.py = 2;
+                params.pz = 2;
+
+                params.plotPoint = function () {
+                    // Clear old point and lines
+                    objects.forEach(o => { if (o.userData.isPointPart) scene.remove(o); });
+
+                    const pos = new THREE.Vector3(params.px, params.py, params.pz);
+
+                    // Create the Sphere (The Point)
+                    const dotGeom = new THREE.SphereGeometry(0.15);
+                    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+                    const dot = new THREE.Mesh(dotGeom, dotMat);
+                    dot.position.copy(pos);
+                    dot.userData.isPointPart = true;
+                    scene.add(dot);
+                    objects.push(dot);
+
+                    // Create Projection Lines (Dashed lines to show position)
+                    const lineMat = new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.2, gapSize: 0.1 });
+
+                    const points = [
+                        new THREE.Vector3(pos.x, 0, 0), new THREE.Vector3(pos.x, pos.y, 0), // X to XY plane
+                        new THREE.Vector3(0, pos.y, 0), new THREE.Vector3(pos.x, pos.y, 0), // Y to XY plane
+                        new THREE.Vector3(pos.x, pos.y, 0), pos // XY plane to Z height
+                    ];
+
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const line = new THREE.LineSegments(geometry, lineMat);
+                    line.computeLineDistances();
+                    line.userData.isPointPart = true;
+                    scene.add(line);
+                    objects.push(line);
+
+                    document.getElementById('current-title').innerText = `Point at: (${pos.x}, ${pos.y}, ${pos.z})`;
+                };
+
+                // 2. GUI Setup
+                const f = gui.addFolder('Point Coordinates');
+                f.add(params, 'px', -10, 10).name('X Position');
+                f.add(params, 'py', -10, 10).name('Y Position');
+                f.add(params, 'pz', -10, 10).name('Z Position');
+                f.add(params, 'plotPoint').name('📍 PLOT POINT');
+
+                // Add static axes for reference
+                const axes = new THREE.AxesHelper(10);
+                scene.add(axes);
+                objects.push(axes);
+
+                // Initial plot
+                params.plotPoint();
+            }
+
+            else if (activeModel === 'Vector Addition') {
+                params.operation = 'Add';
+
+                // 1. Calculation and Visualization Logic
+                params.calculateVector = function () {
+                    // Clear previous arrows
+                    objects.forEach(o => { if (o instanceof THREE.ArrowHelper) scene.remove(o); });
+
+                    const A = new THREE.Vector3(params.ax, params.ay, params.az);
+                    const B = new THREE.Vector3(params.bx, params.by, params.bz);
+                    let R = new THREE.Vector3();
+                    let resultText = "";
+
+                    // Visualize Vector A (Red) and B (Green)
+                    const arrowA = new THREE.ArrowHelper(A.clone().normalize(), new THREE.Vector3(0, 0, 0), A.length(), 0xff3333);
+                    const arrowB = new THREE.ArrowHelper(B.clone().normalize(), new THREE.Vector3(0, 0, 0), B.length(), 0x33ff33);
+                    scene.add(arrowA, arrowB);
+                    objects.push(arrowA, arrowB);
+
+                    if (params.operation === 'Add') {
+                        R.addVectors(A, B);
+                        arrowB.position.copy(A); // Tip-to-tail
+                        resultText = `A + B = [${R.x}, ${R.y}, ${R.z}] | Mag: ${R.length().toFixed(2)}`;
+                    }
+                    else if (params.operation === 'Subtract') {
+                        R.subVectors(A, B);
+                        const negB = B.clone().multiplyScalar(-1);
+                        arrowB.setDirection(negB.clone().normalize());
+                        arrowB.position.copy(A); // Tip-to-tail with negative B
+                        resultText = `A - B = [${R.x}, ${R.y}, ${R.z}] | Mag: ${R.length().toFixed(2)}`;
+                    }
+                    else if (params.operation === 'Dot Product') {
+                        const dot = A.dot(B);
+                        resultText = `A · B = ${dot.toFixed(2)} (Scalar Quantity)`;
+                        R.set(0, 0, 0); // Reset R so no yellow arrow is drawn
+                    }
+                    else if (params.operation === 'Cross Product') {
+                        R.crossVectors(A, B);
+                        resultText = `A × B = [${R.x.toFixed(1)}, ${R.y.toFixed(1)}, ${R.z.toFixed(1)}] | Mag: ${R.length().toFixed(2)}`;
+                    }
+
+                    // Draw Resultant Vector (Yellow)
+                    if (R.length() > 0) {
+                        const arrowR = new THREE.ArrowHelper(R.clone().normalize(), new THREE.Vector3(0, 0, 0), R.length(), 0xffff33);
+                        scene.add(arrowR);
+                        objects.push(arrowR);
+                    }
+
+                    document.getElementById('current-title').innerText = resultText;
+                };
+
+                // 2. GUI Setup
+                const f = gui.addFolder('Vector Parameters');
+                f.add(params, 'operation', ['Add', 'Subtract', 'Dot Product', 'Cross Product']).name('Op Type');
+                f.add(params, 'ax', -5, 5).name('Ax');
+                f.add(params, 'ay', -5, 5).name('Ay');
+                f.add(params, 'az', -5, 5).name('Az');
+                f.add(params, 'bx', -5, 5).name('Bx');
+                f.add(params, 'by', -5, 5).name('By');
+                f.add(params, 'bz', -5, 5).name('Bz');
+
+                // The main trigger button
+                gui.add(params, 'calculateVector').name('🧮 CALCULATE & DRAW');
+
+                // Initial run to show something on screen
+                params.calculateVector();
+            }
+
+            else if (activeModel === 'Projectile Motion') {
+                // 1. Define Calculation Function
+                params.calculate = function () {
+                    const g = 9.8;
+                    const v0 = params.v0;
+                    const theta = params.angle * (Math.PI / 180);
+
+                    // Physics Formulas
+                    const timeOfFlight = (2 * v0 * Math.sin(theta)) / g;
+                    const maxHeight = (Math.pow(v0 * Math.sin(theta), 2)) / (2 * g);
+                    const range = (Math.pow(v0, 2) * Math.sin(2 * theta)) / g;
+
+                    // Display results in the UI title or a dedicated label
+                    document.getElementById('current-title').innerHTML = `
+            Range: ${range.toFixed(2)}m | 
+            Max Height: ${maxHeight.toFixed(2)}m | 
+            Time: ${timeOfFlight.toFixed(2)}s
+        `;
+                };
+
+                // 2. Add GUI Controls
+                gui.add(params, 'v0', 5, 50).name('Init. Velocity (m/s)');
+                gui.add(params, 'angle', 0, 90).name('Launch Angle (°)');
+                gui.add(params, 'calculate').name('📊 CALCULATE VALUES');
+                gui.add(params, 'launch').name('🚀 LAUNCH 3D');
+
+                // 3. Setup 3D Ball
+                const ball = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.3),
+                    new THREE.MeshPhongMaterial({ color: 0x00ff88, emissive: 0x004422 })
+                );
+                scene.add(ball);
+                objects.push(ball);
+                ball.userData.t = 0;
+
+                // Add a light so the ball looks 3D
+                const light = new THREE.PointLight(0xffffff, 50);
+                light.position.set(5, 10, 5);
+                scene.add(light);
+                objects.push(light);
+            }
+
+            else if (activeModel === 'SHM') {
+                gui.add(params, 'amplitude', 0.5, 5);
+                gui.add(params, 'frequency', 0.1, 2);
+                const cube = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), new THREE.MeshNormalMaterial());
+                scene.add(cube);
+                objects.push(cube);
+            }
+
+            else if (activeModel === 'Magnetic Field') {
+                gui.add(params, 'bFieldZ', -5, 5).name('B-Field Intensity');
+                gui.add(params, 'launch').name('🚀 START PARTICLE');
+                const p = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshBasicMaterial({ color: 0x00ccff }));
+                scene.add(p);
+                objects.push(p);
+                p.userData.vel = new THREE.Vector3(5, 0, 0);
+            }
+
+            else if (activeModel === 'Crystal Lattice') {
+                gui.add(params, 'spacing', 1.2, 3).onChange(setupModel);
+                for (let x = -1; x <= 1; x++) {
+                    for (let y = -1; y <= 1; y++) {
+                        for (let z = -1; z <= 1; z++) {
+                            const atom = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshPhongMaterial({ color: 0x888888 }));
+                            atom.position.set(x * params.spacing, y * params.spacing, z * params.spacing);
+                            scene.add(atom);
+                            objects.push(atom);
+                        }
+                    }
+                }
+                const light = new THREE.PointLight(0xffffff, 100); light.position.set(5, 5, 5);
+                scene.add(light); objects.push(light);
+            }
+        }
+
+        window.changeModel = (name) => { activeModel = name; setupModel(); };
+        function onWindowResize() {
+            // Update camera aspect ratio
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            // Update renderer size
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            // On high-DPI mobile screens, set pixel ratio for sharpness
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        }
+
+        // Ensure this is in your init()
+        window.addEventListener('resize', onWindowResize);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = clock.getDelta();
+            const elapsed = clock.getElapsedTime();
+
+            if (activeModel === 'Projectile Motion' && objects[0] && isMoving) {
+                const ball = objects[0];
+                const rad = params.angle * (Math.PI / 180);
+                ball.userData.t += dt * 1.5;
+                const t = ball.userData.t;
+                ball.position.x = params.v0 * t * Math.cos(rad);
+                ball.position.y = (params.v0 * t * Math.sin(rad)) - (0.5 * 9.8 * t * t);
+
+                if (ball.position.y < -0.1) isMoving = false; // Stop on impact
+            }
+
+            if (activeModel === 'SHM' && objects[0]) {
+                objects[0].position.y = params.amplitude * Math.sin(2 * Math.PI * params.frequency * elapsed);
+            }
+
+            if (activeModel === 'Magnetic Field' && objects[0] && isMoving) {
+                const p = objects[0];
+                const B = new THREE.Vector3(0, 0, params.bFieldZ);
+                const force = new THREE.Vector3().crossVectors(p.userData.vel, B).multiplyScalar(params.charge);
+                p.userData.vel.addScaledVector(force, dt);
+                p.position.addScaledVector(p.userData.vel, dt);
+                if (p.position.length() > 15) resetSimulation();
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+
+</html>
