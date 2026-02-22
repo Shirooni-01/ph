@@ -18,7 +18,7 @@ if (GraphCard) {
 const ModelCard = document.getElementById('d3card');
 if (ModelCard) {
     ModelCard.addEventListener('click', () => {
-        window.location.href = 'features/d3model.html';
+        window.location.href = 'features/modellist.html';
     });
 }
 
